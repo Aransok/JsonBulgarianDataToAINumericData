@@ -1,0 +1,34 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Input and output files
+*.json
+*.pdf
+!requirements.txt
+
+# Except for sample and reference files
+!sample_input.json
+!Bulgarian_Number_Reference.md
+!RealEstate_Translator_Assignment.md
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS specific files
+.DS_Store
+Thumbs.db 
