@@ -18,8 +18,14 @@ ENV/
 *.pdf
 !requirements.txt
 
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
 # Except for sample and reference files
 !sample_input.json
+!db_config.json
 !Bulgarian_Number_Reference.md
 !RealEstate_Translator_Assignment.md
 

@@ -1,0 +1,6 @@
+{
+  "type": "sqlite",
+  "connection": {
+    "database_file": "properties.db"
+  }
+} 

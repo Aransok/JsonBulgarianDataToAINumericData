@@ -1,2 +1,7 @@
 deep-translator==1.11.4
-fpdf==1.7.2 
+fpdf==1.7.2
+
+# Optional database drivers (uncomment as needed)
+# psycopg2-binary>=2.9.9  # PostgreSQL
+# mysql-connector-python>=8.2.0  # MySQL
+# pyodbc>=4.0.39  # SQL Server 
