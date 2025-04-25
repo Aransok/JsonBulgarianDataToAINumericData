@@ -423,7 +423,7 @@ class MongoDBConnector(DBConnector):
             raise
     
     def get_cities(self) -> List[str]:
-        if not self.collection:
+        if self.collection is None:
             self.connect()
         
         try:
@@ -435,7 +435,7 @@ class MongoDBConnector(DBConnector):
             return []
     
     def get_properties_by_city(self, city: str) -> List[Dict[str, Any]]:
-        if not self.collection:
+        if self.collection is None:
             self.connect()
         
         try:
