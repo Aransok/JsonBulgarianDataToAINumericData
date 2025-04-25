@@ -59,7 +59,16 @@ def process_property_item(property_item):
                 
                 if numeric_part:
                     try:
-                        numeric_word = number_to_bulgarian_words(int(numeric_part))
+                        # Format numeric values to remove trailing .0
+                        if numeric_part.isdigit():
+                            numeric_value = int(numeric_part)
+                        else:
+                            numeric_value = float(numeric_part)
+                            # Convert to int if it's a whole number
+                            if numeric_value == int(numeric_value):
+                                numeric_value = int(numeric_value)
+                        
+                        numeric_word = number_to_bulgarian_words(numeric_value)
                         translated_text = translate_text(text_part)
                         
                         # Fix for "lev/leva"
@@ -305,21 +314,32 @@ def generate_pdf(data, output_file="property_listings_en.pdf"):
         for idx, property_item in enumerate(property_list, 1):
             # Get district if available
             district = None
+            original_district = None
+            
             for key, value in property_item.items() if isinstance(property_item, dict) else []:
-                if translate_text(key.lower()) == "district":
+                if key.lower() in ["district", "квартал"]:
+                    original_district = value
+                elif translate_text(key.lower()) == "district":
                     district = value
-                    break
+                    # Save original Bulgarian district if found
+                    if not original_district:
+                        original_district = key
             
             if not district:
                 district = f"Property {idx}"
             
+            # Format district with original Bulgarian name in parentheses if available
+            district_display = district
+            if original_district and original_district != district:
+                district_display = f"{district} ({original_district})"
+            
             pdf.set_font("Arial", 'B', 12)
-            pdf.cell(0, 10, f"{idx}. District: {district}", ln=True)
+            pdf.cell(0, 10, f"{idx}. District: {district_display}", ln=True)
             
             if isinstance(property_item, dict):
                 for key, value in property_item.items():
                     # Skip district in details as it's already in the header
-                    if translate_text(key.lower()) != "district":
+                    if translate_text(key.lower()) != "district" and key.lower() != "квартал":
                         pdf.cell(10)  # Indent
                         pdf.set_font("ZapfDingbats", '', 12)
                         pdf.cell(5, 10, "l")  # Bullet point

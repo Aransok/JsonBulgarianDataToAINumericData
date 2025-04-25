@@ -114,12 +114,17 @@ class PostgreSQLConnector(DBConnector):
             
             properties = []
             for row in self.cursor.fetchall():
+                # Format numbers to remove .0 decimal points
+                area = int(row[2]) if row[2] == int(row[2]) else row[2]
+                price = int(row[4]) if row[4] == int(row[4]) else row[4]
+                price_per_sqm = int(row[6]) if row[6] == int(row[6]) else row[6]
+                
                 property_data = {
                     "квартал": row[0],
                     "тип": row[1],
-                    "площ": f"{row[2]} {row[3]}",
-                    "цена": f"{row[4]} {row[5]}",
-                    "цена на квадратен метър": f"{row[6]} {row[7]}"
+                    "площ": f"{area} {row[3]}",
+                    "цена": f"{price} {row[5]}",
+                    "цена на квадратен метър": f"{price_per_sqm} {row[7]}"
                 }
                 properties.append(property_data)
             
@@ -199,12 +204,17 @@ class MySQLConnector(DBConnector):
             
             properties = []
             for row in self.cursor.fetchall():
+                # Format numbers to remove .0 decimal points
+                area = int(row[2]) if row[2] == int(row[2]) else row[2]
+                price = int(row[4]) if row[4] == int(row[4]) else row[4]
+                price_per_sqm = int(row[6]) if row[6] == int(row[6]) else row[6]
+                
                 property_data = {
                     "квартал": row[0],
                     "тип": row[1],
-                    "площ": f"{row[2]} {row[3]}",
-                    "цена": f"{row[4]} {row[5]}",
-                    "цена на квадратен метър": f"{row[6]} {row[7]}"
+                    "площ": f"{area} {row[3]}",
+                    "цена": f"{price} {row[5]}",
+                    "цена на квадратен метър": f"{price_per_sqm} {row[7]}"
                 }
                 properties.append(property_data)
             
@@ -274,12 +284,17 @@ class SQLiteConnector(DBConnector):
             
             properties = []
             for row in self.cursor.fetchall():
+                # Format numbers to remove .0 decimal points
+                area = int(row[2]) if row[2] == int(row[2]) else row[2]
+                price = int(row[4]) if row[4] == int(row[4]) else row[4]
+                price_per_sqm = int(row[6]) if row[6] == int(row[6]) else row[6]
+                
                 property_data = {
                     "квартал": row[0],
                     "тип": row[1],
-                    "площ": f"{row[2]} {row[3]}",
-                    "цена": f"{row[4]} {row[5]}",
-                    "цена на квадратен метър": f"{row[6]} {row[7]}"
+                    "площ": f"{area} {row[3]}",
+                    "цена": f"{price} {row[5]}",
+                    "цена на квадратен метър": f"{price_per_sqm} {row[7]}"
                 }
                 properties.append(property_data)
             
@@ -355,12 +370,17 @@ class SQLServerConnector(DBConnector):
             
             properties = []
             for row in self.cursor.fetchall():
+                # Format numbers to remove .0 decimal points
+                area = int(row[2]) if row[2] == int(row[2]) else row[2]
+                price = int(row[4]) if row[4] == int(row[4]) else row[4]
+                price_per_sqm = int(row[6]) if row[6] == int(row[6]) else row[6]
+                
                 property_data = {
                     "квартал": row[0],
                     "тип": row[1],
-                    "площ": f"{row[2]} {row[3]}",
-                    "цена": f"{row[4]} {row[5]}",
-                    "цена на квадратен метър": f"{row[6]} {row[7]}"
+                    "площ": f"{area} {row[3]}",
+                    "цена": f"{price} {row[5]}",
+                    "цена на квадратен метър": f"{price_per_sqm} {row[7]}"
                 }
                 properties.append(property_data)
             
