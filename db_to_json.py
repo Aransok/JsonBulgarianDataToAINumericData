@@ -10,6 +10,7 @@ Supported databases:
 - MySQL
 - SQLite
 - SQL Server
+- MongoDB
 """
 
 import json
@@ -396,6 +397,77 @@ class SQLServerConnector(DBConnector):
             self.connection.close()
             logger.info("SQL Server connection closed")
 
+class MongoDBConnector(DBConnector):
+    """MongoDB database connector"""
+    
+    def __init__(self, connection_string: str, database: str, collection: str):
+        self.connection_string = connection_string
+        self.database_name = database
+        self.collection_name = collection
+        self.client = None
+        self.db = None
+        self.collection = None
+    
+    def connect(self) -> None:
+        try:
+            import pymongo
+            self.client = pymongo.MongoClient(self.connection_string)
+            self.db = self.client[self.database_name]
+            self.collection = self.db[self.collection_name]
+            logger.info(f"Connected to MongoDB database: {self.database_name}, collection: {self.collection_name}")
+        except ImportError:
+            logger.error("pymongo module not found. Please install it using: pip install pymongo")
+            raise
+        except Exception as e:
+            logger.error(f"Failed to connect to MongoDB database: {e}")
+            raise
+    
+    def get_cities(self) -> List[str]:
+        if not self.collection:
+            self.connect()
+        
+        try:
+            # Get distinct cities from the collection
+            cities = self.collection.distinct("city")
+            return cities
+        except Exception as e:
+            logger.error(f"Error retrieving cities: {e}")
+            return []
+    
+    def get_properties_by_city(self, city: str) -> List[Dict[str, Any]]:
+        if not self.collection:
+            self.connect()
+        
+        try:
+            # Find properties by city
+            cursor = self.collection.find({"city": city})
+            
+            properties = []
+            for doc in cursor:
+                # Format numbers to remove .0 decimal points
+                area = int(doc.get("area")) if doc.get("area") == int(doc.get("area")) else doc.get("area")
+                price = int(doc.get("price")) if doc.get("price") == int(doc.get("price")) else doc.get("price")
+                price_per_sqm = int(doc.get("price_per_sqm")) if doc.get("price_per_sqm") == int(doc.get("price_per_sqm")) else doc.get("price_per_sqm")
+                
+                property_data = {
+                    "квартал": doc.get("district"),
+                    "тип": doc.get("property_type"),
+                    "площ": f"{area} {doc.get('area_unit')}",
+                    "цена": f"{price} {doc.get('price_unit')}",
+                    "цена на квадратен метър": f"{price_per_sqm} {doc.get('price_per_sqm_unit')}"
+                }
+                properties.append(property_data)
+            
+            return properties
+        except Exception as e:
+            logger.error(f"Error retrieving properties for city {city}: {e}")
+            return []
+    
+    def close(self) -> None:
+        if self.client:
+            self.client.close()
+            logger.info("MongoDB connection closed")
+
 def create_connector(db_type: str, config: Dict[str, Any]) -> DBConnector:
     """Factory function to create the appropriate database connector"""
     
@@ -423,6 +495,12 @@ def create_connector(db_type: str, config: Dict[str, Any]) -> DBConnector:
             database=config.get('database', ''),
             user=config.get('user', ''),
             password=config.get('password', '')
+        )
+    elif db_type.lower() == 'mongodb':
+        return MongoDBConnector(
+            connection_string=config.get('connection_string', 'mongodb://localhost:27017'),
+            database=config.get('database', 'properties'),
+            collection=config.get('collection', 'listings')
         )
     else:
         raise ValueError(f"Unsupported database type: {db_type}")

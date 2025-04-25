@@ -1,266 +1,201 @@
-# Real Estate Listings Translator & Formatter
+# Property Listings Generator
 
-This Python project processes property listings from a JSON file, translates Bulgarian text to English, and formats the data into a clean PDF report. It supports getting data from various database systems.
+A comprehensive tool for generating property listings PDFs from various database sources.
 
 ## Features
 
-- Translates all Bulgarian text into English
-- Converts numeric values into their Bulgarian word equivalents using English letters
-- Generates a well-structured PDF report with a clean layout
-- **Handles various JSON structures** - the program is designed to work with different data formats
-- **Database Integration** - supports retrieving data from PostgreSQL, MySQL, SQLite, and SQL Server
+- Extract property data from multiple database types:
+  - SQLite
+  - PostgreSQL
+  - MySQL
+  - SQL Server
+  - MongoDB (New!)
+- Convert property data to structured JSON format
+- Translate Bulgarian property data to English
+- Generate professionally formatted PDF reports
+- Command-line interface for automation
+- Web interface for easy access
 
-## Requirements
+## Installation
 
-- Python 3.10 or higher
-- Required Python packages:
-  - deep-translator
-  - fpdf
-  - Database drivers (as needed):
-    - psycopg2-binary (for PostgreSQL)
-    - mysql-connector-python (for MySQL)
-    - pyodbc (for SQL Server)
+### Prerequisites
 
-## Setup Instructions
+- Python 3.8 or higher
+- pip (Python package manager)
 
-1. Clone this repository or download the project files
+### Setup
 
-2. Install the required dependencies:
+1. Clone the repository:
 
    ```bash
-   pip install deep-translator fpdf
+   git clone https://github.com/Aransok/JsonBulgarianDataToAINumericData.git
+   cd JsonBulgarianDataToAINumericData
    ```
 
-   Or use the requirements.txt file:
+2. Install dependencies:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-   For database support, install the appropriate driver:
+3. (Optional) Install database drivers:
+
+   Uncomment the appropriate lines in `requirements.txt` based on your needs:
 
    ```bash
    # For PostgreSQL
-   pip install psycopg2-binary
+   pip install psycopg2-binary>=2.9.9
 
    # For MySQL
-   pip install mysql-connector-python
+   pip install mysql-connector-python>=8.2.0
 
    # For SQL Server
-   pip install pyodbc
+   pip install pyodbc>=4.0.39
+
+   # For MongoDB (already enabled by default)
+   pip install pymongo>=4.6.2
    ```
 
-3. Create your own `input.json` file in the project directory (you can use `sample_input.json` as a template)
+## Usage
 
-   **Important**: The actual input data should not be committed to the repository for privacy reasons. The `.gitignore` file is set up to exclude all JSON and PDF files except for the sample file.
+### Basic Process
 
-4. Run the main script:
+The property listings generator follows a three-step process:
 
-   ```bash
-   python main.py [input_file.json] [output_file.pdf]
-   ```
+1. Create or connect to a database with property data
+2. Extract and convert database data to JSON format
+3. Generate a translated PDF from the JSON data
 
-   If no arguments are provided, the program will use `input.json` as the input file and
-   `property_listings_en.pdf` as the output file.
+### Command Line Interface
 
-5. Check the output PDF file in the same directory
+The new CLI provides a user-friendly way to interact with the application:
 
-## Database Integration
+```bash
+# Create a sample SQLite database
+python property_cli.py create-db --output properties.db
 
-The project includes a database connector script (`db_to_json.py`) that can retrieve property listings from various database types and format them for use with the main program:
+# Convert database to JSON
+python property_cli.py db-to-json --config db_config.json --output input.json
 
-### Setting Up the Database
+# Generate PDF from JSON
+python property_cli.py generate-pdf --input input.json --output property_listings_en.pdf
 
-1. For testing purposes, you can create a sample SQLite database:
+# Run the full process
+python property_cli.py full-process --db-type sqlite --db-file properties.db --output properties.pdf
 
-   ```bash
-   python create_sample_db.py
-   ```
-
-   This will create a `properties.db` file with sample property listings.
-
-2. Configure your database connection by editing `db_config.json`:
-
-   ```json
-   {
-     "type": "sqlite",
-     "connection": {
-       "database_file": "properties.db"
-     }
-   }
-   ```
-
-   The configuration supports different database types:
-
-   - **SQLite**:
-
-     ```json
-     {
-       "type": "sqlite",
-       "connection": {
-         "database_file": "path/to/your/database.db"
-       }
-     }
-     ```
-
-   - **PostgreSQL**:
-
-     ```json
-     {
-       "type": "postgresql",
-       "connection": {
-         "host": "localhost",
-         "port": 5432,
-         "database": "your_database",
-         "user": "your_username",
-         "password": "your_password"
-       }
-     }
-     ```
-
-   - **MySQL**:
-
-     ```json
-     {
-       "type": "mysql",
-       "connection": {
-         "host": "localhost",
-         "port": 3306,
-         "database": "your_database",
-         "user": "your_username",
-         "password": "your_password"
-       }
-     }
-     ```
-
-   - **SQL Server**:
-     ```json
-     {
-       "type": "sqlserver",
-       "connection": {
-         "server": "your_server",
-         "database": "your_database",
-         "user": "your_username",
-         "password": "your_password"
-       }
-     }
-     ```
-
-3. Retrieve data from the database and save it as JSON:
-
-   ```bash
-   python db_to_json.py --config db_config.json --output input.json
-   ```
-
-   This will extract property listings from the database and save them in the format required by the main application.
-
-### Database Schema
-
-The database connector expects a table named `properties` with the following columns:
-
-- `city` - City name (e.g., "София")
-- `district` - District name (e.g., "Драгалевци")
-- `property_type` - Property type (e.g., "Къща", "Апартамент")
-- `area` - Area value (e.g., 240)
-- `area_unit` - Area unit (e.g., "квадратни метра")
-- `price` - Price value (e.g., 824545)
-- `price_unit` - Price unit (e.g., "лева")
-- `price_per_sqm` - Price per square meter value (e.g., 3435)
-- `price_per_sqm_unit` - Price per square meter unit (e.g., "лева")
-
-## Input Format Flexibility
-
-The program is designed to handle various JSON structures. It automatically detects and processes property data regardless of the JSON format. Here are some examples of supported formats:
-
-### City-Based Structure
-
-```json
-{
-  "София": [
-    {
-      "квартал": "Драгалевци",
-      "тип": "Къща",
-      "площ": "240 квадратни метра",
-      "цена": "824545 лева"
-    }
-  ],
-  "Пловдив": [
-    {
-      "квартал": "Център",
-      "тип": "Апартамент",
-      "площ": "120 квадратни метра",
-      "цена": "300000 лева"
-    }
-  ]
-}
+# List supported database types
+python property_cli.py list-db-types
 ```
 
-### Nested Structure
+### Web Interface
+
+The new web interface provides a graphical way to interact with the application:
+
+```bash
+# Start the web server
+python web_app.py
+```
+
+Then open your browser and navigate to http://localhost:5000
+
+The web interface allows you to:
+
+1. Select a database type
+2. Configure the database connection
+3. Generate and download JSON and PDF files
+
+### Database Configuration
+
+#### SQLite
 
 ```json
 {
-  "data": {
-    "properties": [
-      {
-        "град": "София",
-        "квартал": "Младост",
-        "тип": "Апартамент",
-        "площ": "85 квадратни метра",
-        "цена": "185000 лева"
-      }
-    ]
+  "type": "sqlite",
+  "connection": {
+    "database_file": "properties.db"
   }
 }
 ```
 
-## Creating Your Own Input File
+#### PostgreSQL
 
-To create your own `input.json`:
+```json
+{
+  "type": "postgresql",
+  "connection": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "properties",
+    "user": "username",
+    "password": "password"
+  }
+}
+```
 
-1. Use one of the JSON structures shown above as a template
-2. Add your own property listings with the following fields (in Bulgarian):
-   - City/град (e.g., "София", "Пловдив", "Варна")
-   - District/квартал
-   - Type/тип (e.g., "Къща", "Апартамент")
-   - Area/площ (e.g., "240 квадратни метра")
-   - Price/цена (e.g., "824545 лева")
-3. Save the file as `input.json` in the project directory
+#### MySQL
 
-The input file will not be committed to the repository (it's included in `.gitignore`).
+```json
+{
+  "type": "mysql",
+  "connection": {
+    "host": "localhost",
+    "port": 3306,
+    "database": "properties",
+    "user": "username",
+    "password": "password"
+  }
+}
+```
 
-## Output Format
+#### SQL Server
 
-The output PDF will display:
+```json
+{
+  "type": "sqlserver",
+  "connection": {
+    "server": "localhost",
+    "database": "properties",
+    "user": "username",
+    "password": "password"
+  }
+}
+```
 
-- City names as headers
-- District information (bold)
-- Property details with bullet points
-- **Numeric values are presented in Bulgarian words (using English letters)** rather than showing the original numbers
-  - Example: "Price: osemstotin dvadeset i chetiri hilyadi petstotin chetirideset i pet leva"
+#### MongoDB (New!)
 
-## Version Control Notes
+```json
+{
+  "type": "mongodb",
+  "connection": {
+    "connection_string": "mongodb://localhost:27017",
+    "database": "properties",
+    "collection": "listings"
+  }
+}
+```
 
-The `.gitignore` file is configured to exclude:
+## Direct Script Usage
 
-- All `.json` files (to protect your data)
-- All `.pdf` files (generated outputs)
-- Python bytecode and virtual environment folders
-- Database files (\*.db)
+If you prefer to use the individual scripts directly:
 
-Only the code files and documentation are meant to be committed to the repository.
+### Create a Sample Database
 
-## Troubleshooting
+```bash
+python create_sample_db.py
+```
 
-If you encounter any issues with the translation API, the program will still run and output the original text.
+### Convert Database to JSON
 
-## Files Included
+```bash
+python db_to_json.py --config db_config.json --output input.json
+```
 
-- `main.py` - The main script for translating and generating PDFs
-- `db_to_json.py` - Script for retrieving data from databases
-- `create_sample_db.py` - Script to create a sample SQLite database
-- `README.md` - This documentation file
-- `requirements.txt` - Dependencies list
-- `Bulgarian_Number_Reference.md` - Reference guide for Bulgarian number words
-- `sample_input.json` - Sample input file with dummy data
-- `db_config.json` - Sample database configuration
-- `.gitignore` - Configuration to exclude input/output files from version control
+### Generate PDF from JSON
+
+```bash
+python main.py input.json property_listings_en.pdf
+```
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

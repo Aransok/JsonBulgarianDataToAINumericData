@@ -1,7 +1,12 @@
 deep-translator==1.11.4
 fpdf==1.7.2
+tqdm==4.66.1
+colorama==0.4.6
+flask==2.3.3
+werkzeug==2.3.7
 
 # Optional database drivers (uncomment as needed)
 # psycopg2-binary>=2.9.9  # PostgreSQL
 # mysql-connector-python>=8.2.0  # MySQL
-# pyodbc>=4.0.39  # SQL Server 
+# pyodbc>=4.0.39  # SQL Server
+pymongo>=4.6.2  # MongoDB 
